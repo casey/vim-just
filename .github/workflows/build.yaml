@@ -22,14 +22,7 @@ jobs:
   all:
     name: All
 
-    strategy:
-      matrix:
-        os:
-        - macos-latest
-        - ubuntu-latest
-        - windows-latest
-
-    runs-on: ${{matrix.os}}
+    runs-on: ubuntu-latest
 
     env:
       RUSTFLAGS: "--deny warnings"
@@ -40,14 +33,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-
-    # An issue with BSD Tar causes sporadic failures on macOS.
-    # c.f https://github.com/actions/cache/issues/403
-    - name: Install GNU Tar
-      if: matrix.os == 'macos-latest'
-      run: |
-        brew install gnu-tar
-        echo /usr/local/opt/gnu-tar/libexec/gnubin > $GITHUB_PATH
 
     - name: Cache
       uses: actions/cache@v2
@@ -61,6 +46,11 @@ jobs:
     - name: Install Rust Toolchain Components
       run: |
         rustup component add clippy rustfmt
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install colordiff ripgrep
 
     - name: Info
       run: |
@@ -81,3 +71,6 @@ jobs:
 
     - name: Check Formatting
       run: cargo fmt --all -- --check
+
+    - name: Check for Forbidden Words
+      run: ./bin/forbid
