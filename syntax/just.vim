@@ -5,8 +5,12 @@
 " Last Change:	2021 May 19
 
 if exists('b:current_syntax')
-  finish
+  let old_syntax = b:current_syntax
+  unlet b:current_syntax
 endif
+
+syn include @sh syntax/sh.vim
+unlet b:current_syntax
 
 let b:current_syntax = 'just'
 syntax sync fromstart
@@ -98,7 +102,7 @@ syntax region justConditionalBraces start="\v[^{]\{[^{]" end="}" contained conta
 
 " line          : LINE (TEXT | interpolation)+ NEWLINE
 syntax match justLineAt "\v^\s+\@" contained
-syntax match justLine "\v^\s+.*$" contains=justLineAt,justInterpolation,@justAllStrings
+syntax match justLine "\v^\s+.*$" contains=justLineAt,justInterpolation,@sh
 
 syntax match justBuiltInFunctionParens "[()]" contained
 syntax match justBuiltInFunctions "\v%(arch|os|os_family|invocation_directory|justfile|justfile_directory|just_executable)\ze\(\)"
@@ -136,3 +140,8 @@ highlight link justSetKeyword            Keyword
 highlight link justString                String
 highlight link justVariadic              Identifier
 highlight link justVariadicOperator      Operator
+
+" restore current syntax value
+if exists('old_syntax')
+  let b:current_syntax = old_syntax
+endif
